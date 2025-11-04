@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Pixel Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #1a1a2e;
+            --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        }
+        
+        body {
+            background: var(--gradient-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(67, 97, 238, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(58, 12, 163, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(76, 201, 240, 0.05) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        /* Animated Background Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-element {
+            position: absolute;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .floating-element:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .register-card {
+            background: var(--gradient-card);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.2),
+                0 8px 25px rgba(67, 97, 238, 0.3);
+            text-align: center;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .register-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 25px 60px rgba(0, 0, 0, 0.25),
+                0 12px 30px rgba(67, 97, 238, 0.35);
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .register-header {
+            margin-bottom: 2rem;
+        }
+
+        .register-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .register-title {
+            font-weight: 800;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .register-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* STYLE BARU UNTUK INPUT DENGAN IKON DI LUAR */
+        .input-group-custom {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .input-group-custom:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .input-icon-container {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient);
+            color: white;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .input-field-container {
+            flex: 1;
+            padding: 0 15px;
+        }
+
+        .input-field {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 15px 0;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        .input-field::placeholder {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .input-label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.9rem;
+            padding-left: 5px;
+        }
+
+        .btn-register {
+            background: var(--gradient);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            width: 100%;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        /* STYLE UNTUK ALERT SUCCESS (HIJAU) */
+        .alert-success {
+            border-radius: 12px;
+            border: none;
+            background: rgba(76, 201, 240, 0.1);
+            color: #4cc9f0;
+            font-weight: 500;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #4cc9f0;
+        }
+
+        /* STYLE UNTUK ALERT DANGER (MERAH) */
+        .alert-danger {
+            border-radius: 12px;
+            border: none;
+            background: rgba(247, 37, 133, 0.1);
+            color: #f72585;
+            font-weight: 500;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #f72585;
+        }
+
+        /* STYLE UNTUK ALERT WARNING (KUNING) */
+        .alert-warning {
+            border-radius: 12px;
+            border: none;
+            background: rgba(248, 150, 30, 0.1);
+            color: #f8961e;
+            font-weight: 500;
+            padding: 12px 16px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #f8961e;
+        }
+
+        .register-footer {
+            margin-top: 2rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .login-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.8rem;
+        }
+
+        .strength-weak { color: #f72585; }
+        .strength-medium { color: #f8961e; }
+        .strength-strong { color: #4cc9f0; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <i class="fas fa-user-plus register-icon pulse"></i>
+                <h1 class="register-title">Pixel Forge: GlowSense</h1>
+                <p class="register-subtitle">Buat Akun Baru</p>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if 'success' in message.tags %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>{{ message }}
+                        </div>
+                    {% elif 'warning' in message.tags %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ message }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Input Username dengan Ikon di Luar -->
+                <div class="mb-3">
+                    <label class="input-label">Username</label>
+                    <div class="input-group-custom">
+                        <div class="input-icon-container">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="input-field-container">
+                            <input type="text" name="username" class="input-field" placeholder="Masukkan username" required value="{{ request.POST.username }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Password dengan Ikon di Luar -->
+                <div class="mb-3">
+                    <label class="input-label">Password</label>
+                    <div class="input-group-custom">
+                        <div class="input-icon-container">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="input-field-container">
+                            <input type="password" name="password" class="input-field" placeholder="Masukkan password" id="password" required>
+                        </div>
+                    </div>
+                    <div class="password-strength" id="password-strength"></div>
+                </div>
+
+                <!-- Input Konfirmasi Password dengan Ikon di Luar -->
+                <div class="mb-3">
+                    <label class="input-label">Konfirmasi Password</label>
+                    <div class="input-group-custom">
+                        <div class="input-icon-container">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="input-field-container">
+                            <input type="password" name="confirm" class="input-field" placeholder="Masukkan ulang password" id="confirm-password" required>
+                        </div>
+                    </div>
+                    <div class="password-strength" id="password-match"></div>
+                </div>
+
+                <button type="submit" class="btn btn-register">
+                    <i class="fas fa-user-plus me-2"></i>Daftar
+                </button>
+            </form>
+
+            <div class="register-footer">
+                <p>Sudah punya akun? <a href="{% url 'login' %}" class="login-link">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Password strength indicator
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const strengthIndicator = document.getElementById('password-strength');
+        const matchIndicator = document.getElementById('password-match');
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = '';
+            let strengthClass = '';
+
+            if (password.length === 0) {
+                strength = '';
+            } else if (password.length < 6) {
+                strength = 'Password lemah';
+                strengthClass = 'strength-weak';
+            } else if (password.length < 8) {
+                strength = 'Password sedang';
+                strengthClass = 'strength-medium';
+            } else {
+                // Check for complexity
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                
+                const complexity = [hasUpperCase, hasLowerCase, hasNumbers, hasSpecialChar].filter(Boolean).length;
+                
+                if (complexity >= 3) {
+                    strength = 'Password kuat';
+                    strengthClass = 'strength-strong';
+                } else {
+                    strength = 'Password sedang';
+                    strengthClass = 'strength-medium';
+                }
+            }
+
+            strengthIndicator.textContent = strength;
+            strengthIndicator.className = 'password-strength ' + strengthClass;
+        });
+
+        // Password match indicator
+        confirmPasswordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword.length === 0) {
+                matchIndicator.textContent = '';
+            } else if (password === confirmPassword) {
+                matchIndicator.textContent = '✓ Password cocok';
+                matchIndicator.className = 'password-strength strength-strong';
+            } else {
+                matchIndicator.textContent = '✗ Password tidak cocok';
+                matchIndicator.className = 'password-strength strength-weak';
+            }
+        });
+    </script>
+</body>
+</html>
