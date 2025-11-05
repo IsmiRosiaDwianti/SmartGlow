@@ -559,6 +559,12 @@
         .highlight-update {
             animation: highlightUpdate 0.5s ease-in-out;
         }
+
+        .sensor-source {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -666,6 +672,9 @@
                         <i class="far fa-clock me-1"></i>
                         Belum ada data terbaru
                     </div>
+                    <div class="sensor-source" id="lampSource">
+                        <i class="fas fa-microchip me-1"></i>AI Prediction
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
@@ -678,6 +687,9 @@
                     </div>
                     <div class="last-update no-data" id="liveIndicator">
                         <span class="live-indicator"></span><strong>LIVE</strong> - Data real-time
+                    </div>
+                    <div class="sensor-source">
+                        <i class="fas fa-sensor me-1"></i>Sensor B1750
                     </div>
                 </div>
             </div>
@@ -692,6 +704,9 @@
                     <div class="last-update no-data" id="motionTime">
                         <i class="far fa-clock me-1"></i>
                         Belum ada data
+                    </div>
+                    <div class="sensor-source">
+                        <i class="fas fa-brain me-1"></i>AI Estimation
                     </div>
                 </div>
             </div>
@@ -747,6 +762,21 @@
         // ✅ VARIABLE UNTUK TRACK STATUS SEBELUMNYA
         let lastLightingStatus = null;
         let lastLuxValue = null;
+
+        // === LOGIKA AI SEDERHANA DI FRONTEND ===
+        function predictLightingAction(lux) {
+            // Simple logic based on lux value
+            if (lux < 50) return 1; // ON - gelap
+            else if (lux >= 50 && lux < 150) return 2; // DIM - redup
+            else return 0; // OFF - terang
+        }
+
+        function estimateMotion(lux) {
+            // Simple motion estimation based on lux changes
+            if (lastLuxValue === null) return 0;
+            const change = Math.abs(lux - lastLuxValue);
+            return change > 20 ? 1 : 0; // Motion if significant change
+        }
 
         // === INISIALISASI GRAFIK ===
         function initChart() {
@@ -923,19 +953,22 @@
         function processSensorData(data) {
             console.log('📨 Raw data received:', data);
             
+            // ✅ NORMALIZE DATA - Handle incomplete data from sensor
+            const normalizedData = normalizeSensorData(data);
+            
             // Handle different data structures from WebSocket
-            if (data.type === 'initial_data' && Array.isArray(data.data)) {
+            if (normalizedData.type === 'initial_data' && Array.isArray(normalizedData.data)) {
                 // Initial data load - array dalam property 'data'
-                if (data.data.length > 0) {
-                    const latest = data.data[data.data.length - 1];
+                if (normalizedData.data.length > 0) {
+                    const latest = normalizedData.data[normalizedData.data.length - 1];
                     updateDashboard(latest);
-                    updateChart(data.data);
-                    updateLogs(data.data);
+                    updateChart(normalizedData.data);
+                    updateLogs(normalizedData.data);
                 }
-            } else if (data.type === 'sensor_update' && Array.isArray(data.data)) {
+            } else if (normalizedData.type === 'sensor_update' && Array.isArray(normalizedData.data)) {
                 // Real-time update - array dalam property 'data'
-                if (data.data.length > 0) {
-                    const latest = data.data[data.data.length - 1];
+                if (normalizedData.data.length > 0) {
+                    const latest = normalizedData.data[normalizedData.data.length - 1];
                     updateDashboard(latest);
                     updateChartSingle(latest);
                     
@@ -944,24 +977,66 @@
                     
                     highlightUpdate();
                 }
-            } else if (Array.isArray(data)) {
+            } else if (Array.isArray(normalizedData)) {
                 // Direct array (fallback)
-                if (data.length > 0) {
-                    const latest = data[data.length - 1];
+                if (normalizedData.length > 0) {
+                    const latest = normalizedData[normalizedData.length - 1];
                     updateDashboard(latest);
-                    updateChart(data);
-                    updateLogs(data);
+                    updateChart(normalizedData);
+                    updateLogs(normalizedData);
                 }
             } else {
                 // Single object (fallback)
-                updateDashboard(data);
-                updateChartSingle(data);
+                updateDashboard(normalizedData);
+                updateChartSingle(normalizedData);
                 
                 // ✅ CEK APAKAH ADA PERUBAHAN STATUS
-                checkAndLogStatusChange(data);
+                checkAndLogStatusChange(normalizedData);
                 
                 highlightUpdate();
             }
+        }
+
+        // ✅ NORMALIZE DATA YANG TIDAK LENGKAP
+        function normalizeSensorData(data) {
+            // Jika data hanya berisi ambient_light_lux (dari sensor B1750)
+            if (data.ambient_light_lux && !data.lighting_action_class) {
+                console.log('🔄 Normalizing sensor data...');
+                
+                const lux = parseFloat(data.ambient_light_lux) || 0;
+                
+                // Generate missing fields using frontend AI logic
+                const normalized = {
+                    ...data,
+                    ambient_light_lux: lux,
+                    motion_detected: estimateMotion(lux),
+                    lighting_action_class: predictLightingAction(lux),
+                    day_of_week: new Date().getDay(),
+                    time_of_day: getTimeOfDay(),
+                    weather_condition: estimateWeather(lux),
+                    timestamp: data.timestamp || new Date().toISOString(),
+                    is_normalized: true // Flag untuk data yang dinormalisasi
+                };
+                
+                lastLuxValue = lux; // Update untuk motion detection
+                return normalized;
+            }
+            
+            // Jika data sudah lengkap, return as is
+            return data;
+        }
+
+        // ✅ HELPER FUNCTIONS UNTUK NORMALIZATION
+        function getTimeOfDay() {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) return 1; // Morning
+            else if (hour >= 12 && hour < 18) return 2; // Afternoon
+            else if (hour >= 18 && hour < 24) return 3; // Evening
+            else return 0; // Night
+        }
+
+        function estimateWeather(lux) {
+            return lux > 200 ? 0 : 1; // 0=cerah, 1=mendung
         }
 
         // === CEK PERUBAHAN STATUS ===
@@ -999,7 +1074,7 @@
             const lampStatusText = document.getElementById('lampStatusText');
             const lampStatusDetail = document.getElementById('lampStatusDetail');
             
-            const lightingStatus = latest.lighting_action_class;
+            const lightingStatus = latest.lighting_action_class ?? 0; // Default to 0 if undefined
             
             // ✅ MAP 3 STATES: 0=OFF, 1=ON, 2=DIM
             const statusConfig = {
@@ -1046,7 +1121,7 @@
             const motionStatus = document.getElementById('motionStatus');
             const motionDetail = document.getElementById('motionDetail');
             
-            const motionDetected = latest.motion_detected;
+            const motionDetected = latest.motion_detected ?? 0; // Default to 0 if undefined
             if (motionDetected === 1) {
                 motionStatus.textContent = 'Ya';
                 motionStatus.className = 'stats-number status-on';
@@ -1059,6 +1134,11 @@
                 motionStatus.textContent = '-';
                 motionStatus.className = 'stats-number status-unknown';
                 motionDetail.innerHTML = '<i class="fas fa-question-circle me-2 status-unknown"></i>Menunggu data...';
+            }
+
+            // Update indicator untuk data yang dinormalisasi
+            if (latest.is_normalized) {
+                document.getElementById('lampSource').innerHTML = '<i class="fas fa-brain me-1"></i>AI Estimation (Frontend)';
             }
 
             // Update waktu terakhir
@@ -1217,12 +1297,15 @@
             };
             
             const status = statusMap[d.lighting_action_class] || statusMap[0];
-            const motionStatus = d.motion_detected === 1 ? 'Ya' : 'Tidak';
+            const motionStatus = (d.motion_detected === 1) ? 'Ya' : 'Tidak';
             
             // Validasi lux value
             const ambientLight = (d.ambient_light_lux !== undefined && !isNaN(parseFloat(d.ambient_light_lux))) 
                 ? parseFloat(d.ambient_light_lux).toFixed(1) 
                 : '0.0';
+            
+            // Tampilkan source data
+            const dataSource = d.is_normalized ? ' (AI Est.)' : '';
             
             logItem.innerHTML = `
                 <div class="log-icon">
@@ -1230,7 +1313,7 @@
                 </div>
                 <div class="log-content">
                     <strong class="${status.class}">
-                        LAMPU ${status.text}
+                        LAMPU ${status.text}${dataSource}
                     </strong>
                     <br>
                     <small class="text-muted">
