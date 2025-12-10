@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import LightingLog  # ✅ Tambahkan ini
+from .models import LightingLog
 import joblib
 import os
+
 
 # ================================
 # REGISTER VIEW
@@ -16,7 +17,6 @@ def register_view(request):
         password = request.POST.get('password', '')
         confirm = request.POST.get('confirm', '')
 
-        # Validasi input
         if not username or not password or not confirm:
             messages.error(request, "Semua kolom harus diisi.")
             return redirect('register')
@@ -29,9 +29,9 @@ def register_view(request):
             messages.error(request, "Username sudah terdaftar.")
             return redirect('register')
 
-        # Buat user baru
         user = User.objects.create_user(username=username, email=email, password=password)
         user.save()
+
         messages.success(request, "Registrasi berhasil! Silakan login.")
         return redirect('login')
 
@@ -47,6 +47,7 @@ def login_view(request):
         password = request.POST.get('password', '')
 
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
             messages.success(request, f"Selamat datang, {username}!")
@@ -75,16 +76,20 @@ def dashboard_view(request):
         messages.error(request, "Silakan login terlebih dahulu.")
         return redirect('login')
 
-    # ✅ Ambil data LightingLog milik user yang login
     logs = LightingLog.objects.filter(user=request.user).order_by('-timestamp')[:10]
 
-    # Jika ingin tampilkan juga data dari file .pkl (opsional)
+    # Load data pkl (opsional)
     pkl_data = []
-    pkl_path = os.path.join('processed_data', 'smart_lighting_processed_2024.pkl')
+    pkl_path = os.path.join(
+        os.path.dirname(__file__), 
+        'processed_data',
+        'smart_lighting_processed_2024.pkl'
+    )
+
     if os.path.exists(pkl_path):
         try:
             data = joblib.load(pkl_path)
-            pkl_data = data.tail(5).to_dict(orient='records')  # contoh tambahan
+            pkl_data = data.tail(5).to_dict(orient='records')
         except Exception as e:
             messages.error(request, f"Gagal memuat data dari file: {str(e)}")
 

@@ -549,6 +549,117 @@
             border-color: rgba(255, 193, 7, 0.5);
         }
 
+        /* Mode Control Panel */
+        .control-panel {
+            background: var(--gradient-card);
+            border-radius: 20px;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.1),
+                0 4px 15px rgba(67, 97, 238, 0.1);
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .mode-badge {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-auto {
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            color: white;
+        }
+
+        .mode-manual {
+            background: linear-gradient(135deg, #f8961e 0%, #f72585 100%);
+            color: white;
+        }
+
+        .mode-description {
+            font-size: 0.95rem;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-control {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .btn-control:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-control:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-control-on {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-control-off {
+            background: linear-gradient(135deg, #dc3545 0%, #f72585 100%);
+            color: white;
+        }
+
+        .btn-control-dim {
+            background: linear-gradient(135deg, #ffc107 0%, #f8961e 100%);
+            color: #212529;
+        }
+
+        .control-status {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        .mode-change-log {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
         /* Update Animation */
         @keyframes highlightUpdate {
             0% { transform: scale(1); }
@@ -564,6 +675,54 @@
             font-size: 0.8rem;
             color: #6c757d;
             margin-top: 0.5rem;
+        }
+
+        .mode-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Loading Spinner */
+        .spinner-small {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* API Status */
+        .api-status {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .api-connected {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .api-disconnected {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
         }
     </style>
 </head>
@@ -658,6 +817,76 @@
             {% endfor %}
         {% endif %}
 
+        <!-- Panel Kontrol Mode -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="control-panel">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h5 class="card-title fw-bold mb-3">
+                                <i class="fas fa-cogs me-2"></i>Mode Kontrol Lampu
+                                <span class="api-status api-connected" id="apiStatus">
+                                    <i class="fas fa-plug me-1"></i>API Connected
+                                </span>
+                            </h5>
+                            <div id="modeDisplay" class="mb-2">
+                                <span class="mode-badge mode-auto" id="modeBadge">
+                                    <i class="fas fa-robot me-2"></i>MODE: AUTO
+                                </span>
+                                <div class="mode-description" id="modeDescription">
+                                    <i class="fas fa-info-circle me-2"></i>Kontrol lampu diatur oleh AI berdasarkan sensor
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="control-status">
+                                <strong>Status Kontrol:</strong>
+                                <span id="controlStatusText" class="ms-2">
+                                    <i class="fas fa-sync-alt fa-spin me-1"></i>Menyinkronkan...
+                                </span>
+                            </div>
+                            <div class="mode-change-log" id="lastModeChange">
+                                <i class="far fa-clock me-1"></i>Perubahan terakhir: <span id="lastModeChangeTime">-</span>
+                            </div>
+                            <div class="sensor-source" id="controlSource">
+                                <i class="fas fa-server me-1"></i>WebSocket Connected
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <!-- Tombol Refresh Data -->
+                            <button class="btn btn-logout" id="refreshDataBtn">
+                                <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Kontrol Manual -->
+                    <div class="row mt-3" id="manualControlPanel" style="display: none;">
+                        <div class="col-12">
+                            <h6 class="fw-bold mb-3">
+                                <i class="fas fa-sliders-h me-2"></i>Kontrol Manual Lampu
+                            </h6>
+                            <div class="control-buttons">
+                                <button class="btn-control btn-control-on" id="btnTurnOn" data-action="1">
+                                    <i class="fas fa-power-off"></i>Hidupkan
+                                </button>
+                                <button class="btn-control btn-control-off" id="btnTurnOff" data-action="0">
+                                    <i class="fas fa-times"></i>Matikan
+                                </button>
+                                <button class="btn-control btn-control-dim" id="btnTurnDim" data-action="2">
+                                    <i class="fas fa-adjust"></i>Mode Redup
+                                </button>
+                            </div>
+                            <div class="control-status mt-2">
+                                <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                                <small>Kontrol manual akan mengesampingkan keputusan AI</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistik Ringkas -->
         <div class="row mb-4">
             <div class="col-md-4">
@@ -673,7 +902,7 @@
                         Belum ada data terbaru
                     </div>
                     <div class="sensor-source" id="lampSource">
-                        <i class="fas fa-microchip me-1"></i>AI Prediction
+                        <i class="fas fa-microchip me-1"></i>Menunggu koneksi...
                     </div>
                 </div>
             </div>
@@ -686,7 +915,7 @@
                         <i class="fas fa-bolt me-2" style="color: #4361ee;"></i>Lux
                     </div>
                     <div class="last-update no-data" id="liveIndicator">
-                        <span class="live-indicator"></span><strong>LIVE</strong> - Data real-time
+                        <i class="fas fa-exclamation-triangle me-2 status-off"></i><span class="status-off">OFFLINE</span>
                     </div>
                     <div class="sensor-source">
                         <i class="fas fa-sensor me-1"></i>Sensor B1750
@@ -752,33 +981,294 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // === KONFIGURASI WEBSOCKET ===
+        // ==================== KONFIGURASI SISTEM ====================
         const WS_URL = `ws://${window.location.host}/ws/sensor-data/`;
         let websocket = null;
-        let chart;
+        let chart = null;
         let reconnectAttempts = 0;
         const MAX_RECONNECT_ATTEMPTS = 5;
         
-        // ✅ VARIABLE UNTUK TRACK STATUS SEBELUMNYA
+        // ==================== STATE VARIABLES ====================
+        let currentControlMode = 'auto'; // 'auto' atau 'manual'
         let lastLightingStatus = null;
         let lastLuxValue = null;
+        let lastModeChangeTime = null;
+        let apiStatus = 'disconnected';
+        let wsStatus = 'disconnected';
 
-        // === LOGIKA AI SEDERHANA DI FRONTEND ===
-        function predictLightingAction(lux) {
-            // Simple logic based on lux value
-            if (lux < 50) return 1; // ON - gelap
-            else if (lux >= 50 && lux < 150) return 2; // DIM - redup
-            else return 0; // OFF - terang
+        // ==================== FUNGSI UPDATE CONTROL STATUS ====================
+        
+        function updateControlStatus(message, type = 'info') {
+            const controlStatusText = document.getElementById('controlStatusText');
+            
+            const statusConfig = {
+                'info': { class: 'status-on', icon: 'fa-info-circle' },
+                'success': { class: 'status-on', icon: 'fa-check-circle' },
+                'warning': { class: 'status-warning', icon: 'fa-exclamation-triangle' },
+                'error': { class: 'status-off', icon: 'fa-exclamation-circle' },
+                'loading': { class: 'status-unknown', icon: 'fa-sync-alt fa-spin' }
+            };
+            
+            const config = statusConfig[type] || statusConfig['info'];
+            
+            controlStatusText.innerHTML = 
+                `<span class="${config.class}"><i class="fas ${config.icon} me-1"></i>${message}</span>`;
         }
 
-        function estimateMotion(lux) {
-            // Simple motion estimation based on lux changes
-            if (lastLuxValue === null) return 0;
-            const change = Math.abs(lux - lastLuxValue);
-            return change > 20 ? 1 : 0; // Motion if significant change
+        // ==================== FUNGSI MODE KONTROL ====================
+        
+        function updateControlMode(mode, source = 'unknown') {
+            console.log(`🔄 Updating control mode: ${mode} (from: ${source})`);
+            
+            const previousMode = currentControlMode;
+            currentControlMode = mode.toLowerCase();
+            
+            // Update UI elements
+            const modeBadge = document.getElementById('modeBadge');
+            const modeDescription = document.getElementById('modeDescription');
+            const manualControlPanel = document.getElementById('manualControlPanel');
+            const lampSource = document.getElementById('lampSource');
+            
+            if (currentControlMode === 'auto') {
+                modeBadge.innerHTML = '<i class="fas fa-robot me-2"></i>MODE: AUTO';
+                modeBadge.className = 'mode-badge mode-auto';
+                modeDescription.innerHTML = '<i class="fas fa-info-circle me-2"></i>Kontrol lampu diatur oleh AI berdasarkan sensor';
+                updateControlStatus('AI Control Aktif', 'success');
+                manualControlPanel.style.display = 'none';
+                lampSource.innerHTML = '<i class="fas fa-brain me-1"></i>AI Prediction';
+            } else if (currentControlMode === 'manual') {
+                modeBadge.innerHTML = '<i class="fas fa-hand-paper me-2"></i>MODE: MANUAL';
+                modeBadge.className = 'mode-badge mode-manual';
+                modeDescription.innerHTML = '<i class="fas fa-info-circle me-2"></i>Kontrol lampu diatur manual melalui aplikasi';
+                updateControlStatus('Manual Control Aktif', 'warning');
+                manualControlPanel.style.display = 'block';
+                lampSource.innerHTML = '<i class="fas fa-hand-paper me-1"></i>Manual Control';
+            }
+            
+            // Update last mode change time
+            lastModeChangeTime = new Date();
+            const timeString = lastModeChangeTime.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('lastModeChangeTime').textContent = `${timeString} (${source})`;
+            
+            // Update control source
+            document.getElementById('controlSource').innerHTML = 
+                `<i class="fas fa-server me-1"></i>${source === 'api_postman' ? 'API Postman' : source === 'dashboard' ? 'Dashboard' : 'Server'}`;
+            
+            // Log perubahan mode
+            if (previousMode !== currentControlMode) {
+                addModeChangeLog(previousMode, currentControlMode, source);
+                showNotification(`Mode kontrol diubah: <strong>${previousMode.toUpperCase()} → ${currentControlMode.toUpperCase()}</strong>`, 'info');
+            }
+            
+            // Update control buttons
+            updateControlButtons();
+            
+            // Highlight update
+            highlightUpdate(['lampCard']);
         }
-
-        // === INISIALISASI GRAFIK ===
+        
+        function addModeChangeLog(previousMode, newMode, source) {
+            const logContainer = document.getElementById('activityLog');
+            
+            // Remove placeholder if exists
+            if (logContainer.children.length === 1 && logContainer.children[0].classList.contains('text-center')) {
+                logContainer.innerHTML = '';
+            }
+            
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item new-status';
+            
+            const modeIcons = {
+                'auto': 'fas fa-robot',
+                'manual': 'fas fa-hand-paper'
+            };
+            
+            const sourceText = {
+                'api_postman': 'API Postman',
+                'dashboard': 'Dashboard',
+                'server': 'Server',
+                'unknown': 'Unknown'
+            };
+            
+            logItem.innerHTML = `
+                <div class="log-icon">
+                    <i class="${modeIcons[newMode] || 'fas fa-exchange-alt'} status-warning"></i>
+                </div>
+                <div class="log-content">
+                    <strong class="status-warning">
+                        <i class="fas fa-exchange-alt me-1"></i>MODE DIUBAH: ${previousMode.toUpperCase()} → ${newMode.toUpperCase()}
+                    </strong>
+                    <br>
+                    <small class="text-muted">
+                        Sumber: ${sourceText[source] || source} | Mode baru aktif
+                    </small>
+                </div>
+                <div class="log-time">
+                    ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}
+                </div>
+            `;
+            
+            // PERBAIKAN: Insert at the VERY TOP (newest first)
+            if (logContainer.firstChild) {
+                logContainer.insertBefore(logItem, logContainer.firstChild);
+            } else {
+                logContainer.appendChild(logItem);
+            }
+            
+            // Limit log items (remove oldest from bottom)
+            if (logContainer.children.length > 15) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+            
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+                logItem.classList.remove('new-status');
+            }, 3000);
+        }
+        
+        function updateControlButtons() {
+            const btnTurnOn = document.getElementById('btnTurnOn');
+            const btnTurnOff = document.getElementById('btnTurnOff');
+            const btnTurnDim = document.getElementById('btnTurnDim');
+            
+            if (currentControlMode === 'manual' && websocket && websocket.readyState === WebSocket.OPEN) {
+                btnTurnOn.disabled = false;
+                btnTurnOff.disabled = false;
+                btnTurnDim.disabled = false;
+            } else {
+                btnTurnOn.disabled = true;
+                btnTurnOff.disabled = true;
+                btnTurnDim.disabled = true;
+            }
+        }
+        
+        // ==================== FUNGSI UPDATE LAMPU ====================
+        
+        function updateLampStatusFromCommand(command) {
+            const statusConfig = {
+                0: { text: 'MATI', class: 'status-off', icon: 'fa-power-off', detailIcon: 'fa-times-circle' },
+                1: { text: 'HIDUP', class: 'status-on', icon: 'fa-power-off', detailIcon: 'fa-check-circle' },
+                2: { text: 'REDUP', class: 'status-warning', icon: 'fa-adjust', detailIcon: 'fa-adjust' }
+            };
+            
+            const config = statusConfig[command] || statusConfig[0];
+            
+            // Update lamp UI
+            document.getElementById('lampStatusIcon').className = `fas ${config.icon} stats-icon ${config.class}`;
+            document.getElementById('lampStatusText').textContent = config.text;
+            document.getElementById('lampStatusText').className = `stats-number ${config.class}`;
+            
+            const modeIndicator = currentControlMode === 'auto' ? 
+                '<span class="mode-indicator"><i class="fas fa-robot me-1"></i>AUTO</span>' :
+                '<span class="mode-indicator" style="background: rgba(247, 37, 133, 0.2);"><i class="fas fa-hand-paper me-1"></i>MANUAL</span>';
+            
+            document.getElementById('lampStatusDetail').innerHTML = 
+                `<i class="fas ${config.detailIcon} me-2 ${config.class}"></i>Lampu ${config.text.toLowerCase()} ${modeIndicator}`;
+            
+            // Update timestamp
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('lastUpdateTime').innerHTML = 
+                `<i class="far fa-clock me-1"></i>Update: <strong>${timeString}</strong>`;
+            
+            lastLightingStatus = command;
+        }
+        
+        // ==================== FUNGSI MANUAL COMMAND ====================
+        
+        function sendManualCommand(action) {
+            if (currentControlMode !== 'manual') {
+                showNotification('Mode bukan manual! Aktifkan mode manual terlebih dahulu', 'error');
+                return;
+            }
+            
+            if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                showNotification('WebSocket tidak terhubung!', 'error');
+                return;
+            }
+            
+            const commandMap = {
+                0: { text: 'MATI', icon: 'fa-times' },
+                1: { text: 'HIDUP', icon: 'fa-power-off' },
+                2: { text: 'REDUP', icon: 'fa-adjust' }
+            };
+            
+            const command = commandMap[action];
+            if (!command) {
+                console.error('Invalid command action:', action);
+                return;
+            }
+            
+            // Send command via WebSocket
+            const commandData = {
+                type: 'manual_command',
+                command: action,
+                timestamp: new Date().toISOString(),
+                source: 'dashboard'
+            };
+            
+            websocket.send(JSON.stringify(commandData));
+            console.log(`📤 Sent manual command: ${command.text}`, commandData);
+            
+            // Immediately update UI (optimistic update)
+            updateLampStatusFromCommand(action);
+            
+            showNotification(`Perintah manual dikirim: <strong>LAMPU ${command.text}</strong>`, 'success');
+            
+            // Add to log
+            addCommandLog(action, command.text, 'dashboard');
+        }
+        
+        function addCommandLog(action, commandText, source) {
+            const logContainer = document.getElementById('activityLog');
+            
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item new-status';
+            
+            const statusClass = action === 1 ? 'status-on' : action === 0 ? 'status-off' : 'status-warning';
+            const iconClass = action === 1 ? 'fa-lightbulb' : action === 0 ? 'fa-lightbulb' : 'fa-adjust';
+            
+            logItem.innerHTML = `
+                <div class="log-icon">
+                    <i class="fas ${iconClass} ${statusClass}"></i>
+                </div>
+                <div class="log-content">
+                    <strong class="${statusClass}">
+                        <i class="fas fa-hand-paper me-1"></i>PERINTAH MANUAL: LAMPU ${commandText}
+                    </strong>
+                    <br>
+                    <small class="text-muted">
+                        Mode: <strong>MANUAL</strong> | Sumber: ${source}
+                    </small>
+                </div>
+                <div class="log-time">
+                    ${new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}
+                </div>
+            `;
+            
+            // PERBAIKAN: Insert at the VERY TOP (newest first)
+            if (logContainer.firstChild) {
+                logContainer.insertBefore(logItem, logContainer.firstChild);
+            } else {
+                logContainer.appendChild(logItem);
+            }
+            
+            // Limit logs (remove oldest from bottom)
+            if (logContainer.children.length > 15) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+        
+        // ==================== FUNGSI CHART ====================
+        
         function initChart() {
             const ctx = document.getElementById('luxHistoryChart').getContext('2d');
             chart = new Chart(ctx, {
@@ -835,16 +1325,668 @@
                 }
             });
         }
-
-        // === FUNGSI LOGOUT ===
-        function logout() {
-            if (websocket) {
-                websocket.close();
+        
+        function updateChartSingle(data) {
+            if (!data) {
+                console.warn('Invalid data for chart:', data);
+                return;
             }
-            window.location.href = '/logout/';
-        }
 
-        // === UPDATE WAKTU REAL-TIME ===
+            // Handle multiple field names for lux
+            let luxValue = null;
+            if (data.ambient_light_lux !== undefined && !isNaN(parseFloat(data.ambient_light_lux))) {
+                luxValue = parseFloat(data.ambient_light_lux);
+            } else if (data.lux !== undefined && !isNaN(parseFloat(data.lux))) {
+                luxValue = parseFloat(data.lux);
+            } else if (data.ambient_light !== undefined && !isNaN(parseFloat(data.ambient_light))) {
+                luxValue = parseFloat(data.ambient_light);
+            }
+            
+            if (luxValue === null || isNaN(luxValue)) {
+                console.warn('No valid lux value for chart:', data);
+                return;
+            }
+            
+            const timestamp = new Date(data.timestamp || new Date()).toLocaleTimeString('id-ID');
+            
+            // Add new data
+            chart.data.labels.push(timestamp);
+            chart.data.datasets[0].data.push(luxValue);
+            
+            // Limit data points (20 most recent)
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+            
+            chart.update('quiet');
+        }
+        
+        function updateChart(dataArray) {
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                return;
+            }
+            
+            // Filter valid data
+            const validData = dataArray.filter(d => {
+                if (!d) return false;
+                
+                // Check for any lux field
+                const hasLux = (d.ambient_light_lux !== undefined && !isNaN(parseFloat(d.ambient_light_lux))) ||
+                              (d.lux !== undefined && !isNaN(parseFloat(d.lux))) ||
+                              (d.ambient_light !== undefined && !isNaN(parseFloat(d.ambient_light)));
+                
+                return hasLux;
+            });
+            
+            if (validData.length === 0) return;
+            
+            // Get last 20 data points
+            const recentData = validData.slice(-20);
+            
+            chart.data.labels = recentData.map(d => 
+                new Date(d.timestamp || new Date()).toLocaleTimeString('id-ID')
+            );
+            
+            // Extract lux value from various field names
+            chart.data.datasets[0].data = recentData.map(d => {
+                if (d.ambient_light_lux !== undefined) return parseFloat(d.ambient_light_lux);
+                if (d.lux !== undefined) return parseFloat(d.lux);
+                if (d.ambient_light !== undefined) return parseFloat(d.ambient_light);
+                return 0;
+            });
+            
+            chart.update();
+        }
+        
+        // ==================== FUNGSI LOG - PERBAIKAN UTAMA ====================
+        
+        function updateLogs(dataArray) {
+            const logContainer = document.getElementById('activityLog');
+            
+            // Remove placeholder if exists
+            if (logContainer.children.length === 1 && logContainer.children[0].classList.contains('text-center')) {
+                logContainer.innerHTML = '';
+            }
+
+            if (!Array.isArray(dataArray) || dataArray.length === 0) {
+                // Show placeholder if no data
+                logContainer.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
+                        <p class="opacity-75">Belum ada data log...</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // PERBAIKAN: Sort data by timestamp descending (newest first)
+            const sortedData = [...dataArray].sort((a, b) => {
+                try {
+                    const timeA = new Date(a.timestamp || 0).getTime();
+                    const timeB = new Date(b.timestamp || 0).getTime();
+                    return timeB - timeA; // Descending (newest first)
+                } catch (e) {
+                    return 0;
+                }
+            });
+            
+            // Get unique status changes (only when lighting_action_class changes)
+            const uniqueStatusData = [];
+            let lastStatus = null;
+            
+            sortedData.forEach(d => {
+                if (d.lighting_action_class !== lastStatus) {
+                    uniqueStatusData.push(d);
+                    lastStatus = d.lighting_action_class;
+                }
+            });
+            
+            // PERBAIKAN: Clear existing logs first
+            logContainer.innerHTML = '';
+            
+            // Add logs - newest first already sorted
+            uniqueStatusData.forEach(d => {
+                const logItem = createLogItem(d);
+                if (logItem) {
+                    logContainer.appendChild(logItem);
+                }
+            });
+            
+            // Show placeholder if no logs created
+            if (logContainer.children.length === 0) {
+                logContainer.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
+                        <p class="opacity-75">Belum ada data log...</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateLogSingle(data) {
+            const logContainer = document.getElementById('activityLog');
+            
+            // Remove placeholder if exists
+            if (logContainer.children.length === 1 && logContainer.children[0].classList.contains('text-center')) {
+                logContainer.innerHTML = '';
+            }
+
+            const logItem = createLogItem(data);
+            if (logItem) {
+                // PERBAIKAN: Add to VERY TOP (newest first) dengan highlight
+                logItem.classList.add('new-status');
+                
+                // Insert at the very beginning (top)
+                if (logContainer.firstChild) {
+                    logContainer.insertBefore(logItem, logContainer.firstChild);
+                } else {
+                    logContainer.appendChild(logItem);
+                }
+                
+                // PERBAIKAN: Limit logs (15 most recent) - remove oldest from bottom
+                while (logContainer.children.length > 15) {
+                    logContainer.removeChild(logContainer.lastChild);
+                }
+                
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                    logItem.classList.remove('new-status');
+                }, 3000);
+            }
+        }
+        
+        function createLogItem(d) {
+            if (!d || typeof d !== 'object') {
+                console.error('Invalid log data:', d);
+                return null;
+            }
+
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            
+            // Handle 3 states
+            const statusMap = {
+                0: { text: 'MATI', class: 'status-off', icon: 'far fa-lightbulb' },
+                1: { text: 'HIDUP', class: 'status-on', icon: 'fas fa-lightbulb' },
+                2: { text: 'REDUP', class: 'status-warning', icon: 'fas fa-adjust' }
+            };
+            
+            const status = statusMap[d.lighting_action_class] || statusMap[0];
+            const motionStatus = (d.motion_detected === 1) ? 'Ya' : 'Tidak';
+            
+            // Handle multiple field names for lux
+            let luxValue = '0.0';
+            if (d.ambient_light_lux !== undefined && !isNaN(parseFloat(d.ambient_light_lux))) {
+                luxValue = parseFloat(d.ambient_light_lux).toFixed(1);
+            } else if (d.lux !== undefined && !isNaN(parseFloat(d.lux))) {
+                luxValue = parseFloat(d.lux).toFixed(1);
+            } else if (d.ambient_light !== undefined && !isNaN(parseFloat(d.ambient_light))) {
+                luxValue = parseFloat(d.ambient_light).toFixed(1);
+            }
+            
+            // Format timestamp
+            let displayTime = '';
+            try {
+                const timestamp = d.timestamp ? new Date(d.timestamp) : new Date();
+                displayTime = timestamp.toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
+            } catch (e) {
+                displayTime = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'});
+            }
+            
+            // Show source
+            const dataSource = d.is_test ? ' (Test)' : d.is_manual ? ' (Manual)' : '';
+            const controlMode = d.control_mode === 'manual' ? 
+                '<i class="fas fa-hand-paper me-1" style="color: #f8961e;"></i>MANUAL' : 
+                '<i class="fas fa-robot me-1" style="color: #4cc9f0;"></i>AUTO';
+            
+            logItem.innerHTML = `
+                <div class="log-icon">
+                    <i class="${status.icon} ${status.class}"></i>
+                </div>
+                <div class="log-content">
+                    <strong class="${status.class}">
+                        LAMPU ${status.text}${dataSource}
+                    </strong>
+                    <br>
+                    <small class="text-muted">
+                        Lux: <strong>${luxValue}</strong> | 
+                        Motion: ${motionStatus} | 
+                        Mode: ${controlMode}
+                    </small>
+                </div>
+                <div class="log-time">
+                    ${displayTime}
+                </div>
+            `;
+
+            return logItem;
+        }
+        
+        // ==================== FUNGSI WEBSOCKET ====================
+        
+        function initWebSocket() {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                return;
+            }
+
+            updateConnectionStatus('connecting');
+            updateApiStatus('connecting');
+            
+            try {
+                websocket = new WebSocket(WS_URL);
+                
+                websocket.onopen = function(event) {
+                    console.log('🟢 WebSocket connected to Django');
+                    wsStatus = 'connected';
+                    updateConnectionStatus('connected');
+                    updateApiStatus('connected');
+                    updateControlStatus('Terhubung ke server', 'success');
+                    showNotification('Terhubung ke sistem real-time', 'success');
+                    
+                    // Update lux indicator to LIVE when connected
+                    document.getElementById('liveIndicator').innerHTML = 
+                        '<span class="live-indicator"></span><strong class="status-on">LIVE</strong> - ' + 
+                        '<span class="text-success fw-bold">Menunggu data...</span>';
+                    
+                    // Request current state immediately
+                    setTimeout(() => {
+                        if (websocket.readyState === WebSocket.OPEN) {
+                            websocket.send(JSON.stringify({
+                                type: 'get_state',
+                                timestamp: new Date().toISOString()
+                            }));
+                        }
+                    }, 1000);
+                };
+                
+                websocket.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 WebSocket RAW message:', event.data);
+                        console.log('📨 WebSocket parsed data:', data);
+                        
+                        // ============== HANDLE DIFFERENT MESSAGE TYPES ==============
+                        
+                        // 1. CONTROL MODE UPDATE (from API or server)
+                        if (data.type === 'control_mode') {
+                            console.log('🎛️ Control mode update received:', data.control_mode);
+                            
+                            // Update control mode
+                            if (data.control_mode) {
+                                updateControlMode(data.control_mode, data.source || 'server');
+                            }
+                            
+                            // Update lamp status if provided
+                            if (data.light_status) {
+                                const commandMap = {
+                                    'on': 1,
+                                    'off': 0,
+                                    'dim': 2
+                                };
+                                const command = commandMap[data.light_status];
+                                if (command !== undefined) {
+                                    updateLampStatusFromCommand(command);
+                                }
+                            }
+                            
+                            updateControlStatus(`Mode ${data.control_mode?.toUpperCase()} aktif`, 'info');
+                            showNotification(`Update dari ${data.source || 'server'}: Mode ${data.control_mode?.toUpperCase()}`, 'info');
+                        }
+                        
+                        // 2. MANUAL COMMAND UPDATE
+                        else if (data.type === 'manual_command') {
+                            console.log('🕹️ Manual command update:', data.command);
+                            
+                            if (data.command !== undefined) {
+                                updateLampStatusFromCommand(data.command);
+                                
+                                // If source is API, add to log
+                                if (data.source === 'api_postman') {
+                                    const commandText = {0: 'MATI', 1: 'HIDUP', 2: 'REDUP'}[data.command];
+                                    addCommandLog(data.command, commandText, 'API Postman');
+                                }
+                            }
+                            
+                            updateControlStatus('Perintah manual diproses', 'success');
+                        }
+                        
+                        // 3. CURRENT STATE RESPONSE
+                        else if (data.type === 'current_state') {
+                            console.log('🔄 Current state from server:', data);
+                            
+                            if (data.control_mode && data.control_mode !== currentControlMode) {
+                                updateControlMode(data.control_mode, 'server_sync');
+                            }
+                            
+                            if (data.light_status) {
+                                const command = data.light_status === 'on' ? 1 : 0;
+                                updateLampStatusFromCommand(command);
+                            }
+                            
+                            updateControlStatus('Sistem sinkron', 'success');
+                        }
+                        
+                        // 4. INITIAL DATA (on connection)
+                        else if (data.type === 'initial_data') {
+                            console.log('📊 Initial data loaded:', data.data?.length || 0, 'records');
+                            
+                            // Update control mode
+                            if (data.control_mode) {
+                                updateControlMode(data.control_mode, 'server_init');
+                            }
+                            
+                            // Update lamp status
+                            if (data.light_status) {
+                                const command = data.light_status === 'on' ? 1 : 0;
+                                updateLampStatusFromCommand(command);
+                            }
+                            
+                            // Update lighting action class if provided
+                            if (data.lighting_action_class !== undefined) {
+                                updateLampStatusFromCommand(data.lighting_action_class);
+                            }
+                            
+                            // PERBAIKAN: Sort data before processing - newest first
+                            if (data.data && data.data.length > 0) {
+                                // Sort by timestamp descending (newest first)
+                                const sortedData = [...data.data].sort((a, b) => {
+                                    const timeA = new Date(a.timestamp || 0).getTime();
+                                    const timeB = new Date(b.timestamp || 0).getTime();
+                                    return timeB - timeA; // Descending
+                                });
+                                
+                                updateChart(sortedData);
+                                updateLogs(sortedData); // PERBAIKAN: Send sorted data
+                                
+                                // Update latest lux value
+                                const latest = sortedData[0]; // Get first (newest) item
+                                let luxValue = null;
+                                if (latest.ambient_light_lux !== undefined && !isNaN(parseFloat(latest.ambient_light_lux))) {
+                                    luxValue = parseFloat(latest.ambient_light_lux).toFixed(1);
+                                } else if (latest.lux !== undefined && !isNaN(parseFloat(latest.lux))) {
+                                    luxValue = parseFloat(latest.lux).toFixed(1);
+                                }
+                                
+                                if (luxValue !== null) {
+                                    document.getElementById('currentLux').textContent = luxValue;
+                                    lastLuxValue = parseFloat(luxValue);
+                                }
+                            }
+                            
+                            updateControlStatus('Data awal dimuat', 'success');
+                            showNotification('Data awal berhasil dimuat', 'success');
+                        }
+                        
+                        // 5. SENSOR UPDATE (real-time data)
+                        else if (data.type === 'sensor_update') {
+                            console.log('📊 Sensor update received:', data);
+                            
+                            let processedData = [];
+                            
+                            // Handle array data
+                            if (data.data && Array.isArray(data.data)) {
+                                // PERBAIKAN: Sort array data by timestamp (newest first)
+                                processedData = [...data.data].sort((a, b) => {
+                                    const timeA = new Date(a.timestamp || 0).getTime();
+                                    const timeB = new Date(b.timestamp || 0).getTime();
+                                    return timeB - timeA; // Descending
+                                });
+                            } else if (data.data && typeof data.data === 'object') {
+                                // Single object
+                                processedData = [data.data];
+                            }
+                            
+                            // Process each data item
+                            if (processedData.length > 0) {
+                                processedData.forEach(sensorData => {
+                                    processSensorData(sensorData);
+                                });
+                            }
+                            
+                            updateControlStatus('Data sensor diterima', 'success');
+                        }
+                        
+                        // 6. ERROR
+                        else if (data.type === 'error') {
+                            console.error('❌ WebSocket error:', data.error);
+                            updateControlStatus(`Error: ${data.error}`, 'error');
+                            showNotification(`WebSocket Error: ${data.error}`, 'error');
+                        }
+                        
+                        // 7. UNKNOWN TYPE - PROCESS AS SENSOR DATA
+                        else {
+                            console.warn('⚠️ Unknown message type:', data.type);
+                            
+                            // Try to process as sensor data
+                            processSensorData(data);
+                            updateControlStatus('Data sensor diproses', 'info');
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Error parsing WebSocket message:', error);
+                        updateControlStatus('Error parsing data', 'error');
+                    }
+                };
+                
+                websocket.onclose = function(event) {
+                    console.log('🔴 WebSocket disconnected:', event.code, event.reason);
+                    wsStatus = 'disconnected';
+                    updateConnectionStatus('disconnected');
+                    updateApiStatus('disconnected');
+                    updateControlStatus('Koneksi terputus', 'error');
+                    
+                    // Update lux indicator to OFFLINE when disconnected
+                    document.getElementById('liveIndicator').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle me-2 status-off"></i>' +
+                        '<span class="status-off fw-bold">OFFLINE</span>';
+                    
+                    // Auto-reconnect with exponential backoff
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectAttempts++;
+                        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+                        console.log(`🔄 Attempting reconnect in ${delay}ms (attempt ${reconnectAttempts})`);
+                        
+                        setTimeout(() => {
+                            initWebSocket();
+                        }, delay);
+                    } else {
+                        console.error('❌ Max reconnection attempts reached');
+                        updateControlStatus('Gagal terhubung', 'error');
+                        showNotification('Gagal terhubung ke server WebSocket', 'error');
+                    }
+                };
+                
+                websocket.onerror = function(error) {
+                    console.error('❌ WebSocket error:', error);
+                    wsStatus = 'error';
+                    updateConnectionStatus('disconnected');
+                    updateApiStatus('error');
+                    updateControlStatus('Error koneksi', 'error');
+                    
+                    // Update lux indicator to OFFLINE on error
+                    document.getElementById('liveIndicator').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle me-2 status-off"></i>' +
+                        '<span class="status-off fw-bold">ERROR</span>';
+                };
+                
+            } catch (error) {
+                console.error('❌ Error initializing WebSocket:', error);
+                updateConnectionStatus('disconnected');
+                updateApiStatus('error');
+                updateControlStatus('Inisialisasi gagal', 'error');
+            }
+        }
+        
+        // ==================== FUNGSI PROCESS DATA ====================
+        
+        function processSensorData(data) {
+            console.log('🔍 Processing sensor data:', data);
+            
+            // Validate data
+            if (!data || typeof data !== 'object') {
+                console.error('Invalid sensor data:', data);
+                return;
+            }
+            
+            // Handle multiple field names for lux
+            let luxValue = null;
+            
+            // Cek semua kemungkinan nama field untuk lux
+            if (data.ambient_light_lux !== undefined && !isNaN(parseFloat(data.ambient_light_lux))) {
+                luxValue = parseFloat(data.ambient_light_lux);
+            } else if (data.lux !== undefined && !isNaN(parseFloat(data.lux))) {
+                luxValue = parseFloat(data.lux);
+            } else if (data.ambient_light !== undefined && !isNaN(parseFloat(data.ambient_light))) {
+                luxValue = parseFloat(data.ambient_light);
+            } else if (data.value !== undefined && !isNaN(parseFloat(data.value))) {
+                luxValue = parseFloat(data.value);
+            }
+            
+            // Update lux display if we have a valid value
+            if (luxValue !== null) {
+                const formattedLux = luxValue.toFixed(1);
+                document.getElementById('currentLux').textContent = formattedLux;
+                lastLuxValue = luxValue;
+                
+                // Update live indicator dengan warna hijau
+                document.getElementById('liveIndicator').innerHTML = 
+                    '<span class="live-indicator"></span><strong class="status-on">LIVE</strong> - ' + 
+                    `<span class="text-success fw-bold">${formattedLux} lux</span>`;
+                
+                console.log(`✅ Lux updated: ${formattedLux}`);
+            } else {
+                console.warn('⚠️ No valid lux value found in data:', data);
+            }
+            
+            // Update motion detection
+            if (data.motion_detected !== undefined) {
+                const motionStatus = document.getElementById('motionStatus');
+                const motionDetail = document.getElementById('motionDetail');
+                
+                // Handle multiple motion field names
+                const motionValue = data.motion_detected || data.motion || data.motion_status;
+                
+                if (motionValue === 1 || motionValue === true || motionValue === 'yes') {
+                    motionStatus.textContent = 'Ya';
+                    motionStatus.className = 'stats-number status-on';
+                    motionDetail.innerHTML = '<span class="motion-indicator motion-yes"></span><strong>Gerakan terdeteksi</strong>';
+                } else {
+                    motionStatus.textContent = 'Tidak';
+                    motionStatus.className = 'stats-number status-off';
+                    motionDetail.innerHTML = '<span class="motion-indicator motion-no"></span>Tidak ada gerakan';
+                }
+                
+                // Update motion time
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('id-ID', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('motionTime').innerHTML = 
+                    `<i class="far fa-clock me-1"></i>Update: <strong>${timeString}</strong>`;
+            }
+            
+            // Update lamp status if provided
+            if (data.lighting_action_class !== undefined) {
+                updateLampStatusFromCommand(data.lighting_action_class);
+            } else if (data.light_status !== undefined) {
+                // Handle alternative field names
+                const statusMap = {
+                    'on': 1,
+                    'off': 0,
+                    'dim': 2
+                };
+                const command = statusMap[data.light_status];
+                if (command !== undefined) {
+                    updateLampStatusFromCommand(command);
+                }
+            }
+            
+            // Update control mode if provided
+            if (data.control_mode && data.control_mode !== currentControlMode) {
+                updateControlMode(data.control_mode, 'sensor_data');
+            }
+            
+            // Update source display
+            let sourceText = '';
+            if (data.is_test) {
+                sourceText = '<i class="fas fa-vial me-1"></i>Test Data';
+            } else if (data.is_manual) {
+                sourceText = '<i class="fas fa-hand-paper me-1"></i>Manual Control';
+            } else if (data.control_mode === 'manual') {
+                sourceText = '<i class="fas fa-hand-paper me-1"></i>Manual Control';
+            } else {
+                sourceText = '<i class="fas fa-brain me-1"></i>AI Prediction';
+            }
+            document.getElementById('lampSource').innerHTML = sourceText;
+            
+            // Add to chart (always add lux data to chart if available)
+            if (luxValue !== null) {
+                updateChartSingle({...data, ambient_light_lux: luxValue});
+            }
+            
+            // PERBAIKAN: Always add to log (newest will be at top)
+            updateLogSingle(data);
+            lastLightingStatus = data.lighting_action_class;
+            
+            // Highlight update
+            const cardsToHighlight = [];
+            if (luxValue !== null) cardsToHighlight.push('luxCard');
+            if (data.motion_detected !== undefined) cardsToHighlight.push('motionCard');
+            if (data.lighting_action_class !== undefined) cardsToHighlight.push('lampCard');
+            
+            if (cardsToHighlight.length > 0) {
+                highlightUpdate(cardsToHighlight);
+            }
+        }
+        
+        // ==================== FUNGSI HELPER ====================
+        
+        function updateConnectionStatus(status) {
+            const connectionElement = document.getElementById('connectionStatus');
+            
+            switch(status) {
+                case 'connected':
+                    connectionElement.innerHTML = '<i class="fas fa-wifi me-2"></i>WEBSOCKET TERHUBUNG';
+                    connectionElement.className = 'connection-status connection-connected';
+                    break;
+                case 'disconnected':
+                    connectionElement.innerHTML = '<i class="fas fa-wifi-slash me-2"></i>WEBSOCKET TERPUTUS';
+                    connectionElement.className = 'connection-status connection-disconnected';
+                    break;
+                case 'connecting':
+                    connectionElement.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i>MENGHUBUNGKAN...';
+                    connectionElement.className = 'connection-status connection-connecting';
+                    break;
+            }
+        }
+        
+        function updateApiStatus(status) {
+            const apiStatusElement = document.getElementById('apiStatus');
+            apiStatus = status;
+            
+            switch(status) {
+                case 'connected':
+                    apiStatusElement.innerHTML = '<i class="fas fa-plug me-1"></i>API Connected';
+                    apiStatusElement.className = 'api-status api-connected';
+                    break;
+                case 'disconnected':
+                    apiStatusElement.innerHTML = '<i class="fas fa-plug me-1"></i>API Disconnected';
+                    apiStatusElement.className = 'api-status api-disconnected';
+                    break;
+                case 'connecting':
+                    apiStatusElement.innerHTML = '<i class="fas fa-sync-alt fa-spin me-1"></i>Connecting...';
+                    apiStatusElement.className = 'api-status api-disconnected';
+                    break;
+                case 'error':
+                    apiStatusElement.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>API Error';
+                    apiStatusElement.className = 'api-status api-disconnected';
+                    break;
+            }
+        }
+        
         function updateTime() {
             const now = new Date();
             const optionsDate = { 
@@ -864,475 +2006,18 @@
             document.getElementById('currentDate').textContent = formattedDate;
             document.getElementById('currentTime').textContent = formattedTime;
         }
-
-        // === UPDATE STATUS KONEKSI ===
-        function updateConnectionStatus(status) {
-            const connectionElement = document.getElementById('connectionStatus');
-            const liveIndicator = document.getElementById('liveIndicator');
-            
-            switch(status) {
-                case 'connected':
-                    connectionElement.innerHTML = '<i class="fas fa-wifi me-2"></i>TERHUBUNG';
-                    connectionElement.className = 'connection-status connection-connected';
-                    liveIndicator.innerHTML = '<span class="live-indicator"></span><strong class="status-on">LIVE</strong> - Data real-time';
-                    reconnectAttempts = 0;
-                    break;
-                case 'disconnected':
-                    connectionElement.innerHTML = '<i class="fas fa-wifi-slash me-2"></i>TERPUTUS';
-                    connectionElement.className = 'connection-status connection-disconnected';
-                    liveIndicator.innerHTML = '<i class="fas fa-exclamation-triangle me-2 status-off"></i><span class="status-off">OFFLINE</span>';
-                    break;
-                case 'connecting':
-                    connectionElement.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i>MENGHUBUNGKAN...';
-                    connectionElement.className = 'connection-status connection-connecting';
-                    liveIndicator.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i><span>Menghubungkan...</span>';
-                    break;
+        
+        function logout() {
+            if (websocket) {
+                websocket.close();
             }
+            window.location.href = '/logout/';
         }
-
-        // === INISIALISASI WEBSOCKET ===
-        function initWebSocket() {
-            if (websocket && websocket.readyState === WebSocket.OPEN) {
-                return;
-            }
-
-            updateConnectionStatus('connecting');
+        
+        function highlightUpdate(cardIds) {
+            if (!Array.isArray(cardIds)) return;
             
-            try {
-                websocket = new WebSocket(WS_URL);
-                
-                websocket.onopen = function(event) {
-                    console.log('🟢 WebSocket connected to Django');
-                    updateConnectionStatus('connected');
-                    showNotification('Terhubung ke sistem real-time', 'success');
-                };
-                
-                websocket.onmessage = function(event) {
-                    try {
-                        const sensorData = JSON.parse(event.data);
-                        console.log('📨 Data real-time diterima:', sensorData);
-                        
-                        // Process the incoming data
-                        processSensorData(sensorData);
-                    } catch (error) {
-                        console.error('Error parsing WebSocket message:', error);
-                    }
-                };
-                
-                websocket.onclose = function(event) {
-                    console.log('🔴 WebSocket disconnected:', event.code, event.reason);
-                    updateConnectionStatus('disconnected');
-                    
-                    // Auto-reconnect dengan exponential backoff
-                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                        reconnectAttempts++;
-                        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-                        console.log(`🔄 Attempting reconnect in ${delay}ms (attempt ${reconnectAttempts})`);
-                        
-                        setTimeout(() => {
-                            initWebSocket();
-                        }, delay);
-                    } else {
-                        console.error('❌ Max reconnection attempts reached');
-                        showNotification('Gagal terhubung ke server', 'error');
-                    }
-                };
-                
-                websocket.onerror = function(error) {
-                    console.error('WebSocket error:', error);
-                    updateConnectionStatus('disconnected');
-                };
-                
-            } catch (error) {
-                console.error('Error initializing WebSocket:', error);
-                updateConnectionStatus('disconnected');
-            }
-        }
-
-        // === PROSES DATA SENSOR ===
-        function processSensorData(data) {
-            console.log('📨 Raw data received:', data);
-            
-            // ✅ NORMALIZE DATA - Handle incomplete data from sensor
-            const normalizedData = normalizeSensorData(data);
-            
-            // Handle different data structures from WebSocket
-            if (normalizedData.type === 'initial_data' && Array.isArray(normalizedData.data)) {
-                // Initial data load - array dalam property 'data'
-                if (normalizedData.data.length > 0) {
-                    const latest = normalizedData.data[normalizedData.data.length - 1];
-                    updateDashboard(latest);
-                    updateChart(normalizedData.data);
-                    updateLogs(normalizedData.data);
-                }
-            } else if (normalizedData.type === 'sensor_update' && Array.isArray(normalizedData.data)) {
-                // Real-time update - array dalam property 'data'
-                if (normalizedData.data.length > 0) {
-                    const latest = normalizedData.data[normalizedData.data.length - 1];
-                    updateDashboard(latest);
-                    updateChartSingle(latest);
-                    
-                    // ✅ CEK APAKAH ADA PERUBAHAN STATUS
-                    checkAndLogStatusChange(latest);
-                    
-                    highlightUpdate();
-                }
-            } else if (Array.isArray(normalizedData)) {
-                // Direct array (fallback)
-                if (normalizedData.length > 0) {
-                    const latest = normalizedData[normalizedData.length - 1];
-                    updateDashboard(latest);
-                    updateChart(normalizedData);
-                    updateLogs(normalizedData);
-                }
-            } else {
-                // Single object (fallback)
-                updateDashboard(normalizedData);
-                updateChartSingle(normalizedData);
-                
-                // ✅ CEK APAKAH ADA PERUBAHAN STATUS
-                checkAndLogStatusChange(normalizedData);
-                
-                highlightUpdate();
-            }
-        }
-
-        // ✅ NORMALIZE DATA YANG TIDAK LENGKAP
-        function normalizeSensorData(data) {
-            // Jika data hanya berisi ambient_light_lux (dari sensor B1750)
-            if (data.ambient_light_lux && !data.lighting_action_class) {
-                console.log('🔄 Normalizing sensor data...');
-                
-                const lux = parseFloat(data.ambient_light_lux) || 0;
-                
-                // Generate missing fields using frontend AI logic
-                const normalized = {
-                    ...data,
-                    ambient_light_lux: lux,
-                    motion_detected: estimateMotion(lux),
-                    lighting_action_class: predictLightingAction(lux),
-                    day_of_week: new Date().getDay(),
-                    time_of_day: getTimeOfDay(),
-                    weather_condition: estimateWeather(lux),
-                    timestamp: data.timestamp || new Date().toISOString(),
-                    is_normalized: true // Flag untuk data yang dinormalisasi
-                };
-                
-                lastLuxValue = lux; // Update untuk motion detection
-                return normalized;
-            }
-            
-            // Jika data sudah lengkap, return as is
-            return data;
-        }
-
-        // ✅ HELPER FUNCTIONS UNTUK NORMALIZATION
-        function getTimeOfDay() {
-            const hour = new Date().getHours();
-            if (hour >= 6 && hour < 12) return 1; // Morning
-            else if (hour >= 12 && hour < 18) return 2; // Afternoon
-            else if (hour >= 18 && hour < 24) return 3; // Evening
-            else return 0; // Night
-        }
-
-        function estimateWeather(lux) {
-            return lux > 200 ? 0 : 1; // 0=cerah, 1=mendung
-        }
-
-        // === CEK PERUBAHAN STATUS ===
-        function checkAndLogStatusChange(currentData) {
-            const currentStatus = currentData.lighting_action_class;
-            const currentLux = currentData.ambient_light_lux;
-            
-            console.log(`🔍 Status Check: Last=${lastLightingStatus}, Current=${currentStatus}`);
-            
-            // ✅ LOG HANYA JIKA ADA PERUBAHAN STATUS
-            if (lastLightingStatus === null || currentStatus !== lastLightingStatus) {
-                console.log('🔄 Status berubah! Menambah log...');
-                updateLogSingle(currentData);
-                lastLightingStatus = currentStatus;
-            } else {
-                console.log('⏸️ Status sama, skip log');
-            }
-            
-            lastLuxValue = currentLux;
-        }
-
-        // === UPDATE DASHBOARD ===
-        function updateDashboard(latest) {
-            console.log('Updating dashboard with:', latest);
-            
-            // VALIDASI DATA - PENTING!
-            if (!latest || typeof latest !== 'object') {
-                console.error('Invalid data received:', latest);
-                setDefaultValues();
-                return;
-            }
-
-            // ✅ HANDLE 3 STATES DENGAN BENAR
-            const lampStatusIcon = document.getElementById('lampStatusIcon');
-            const lampStatusText = document.getElementById('lampStatusText');
-            const lampStatusDetail = document.getElementById('lampStatusDetail');
-            
-            const lightingStatus = latest.lighting_action_class ?? 0; // Default to 0 if undefined
-            
-            // ✅ MAP 3 STATES: 0=OFF, 1=ON, 2=DIM
-            const statusConfig = {
-                0: {
-                    icon: 'fa-power-off',
-                    text: 'MATI',
-                    class: 'status-off',
-                    detail: '<i class="fas fa-times-circle me-2 status-off"></i>Lampu sedang mati'
-                },
-                1: {
-                    icon: 'fa-power-off', 
-                    text: 'HIDUP',
-                    class: 'status-on',
-                    detail: '<i class="fas fa-check-circle me-2 status-on"></i>Lampu sedang menyala'
-                },
-                2: {
-                    icon: 'fa-adjust',
-                    text: 'REDUP',
-                    class: 'status-warning',
-                    detail: '<i class="fas fa-adjust me-2 status-warning"></i>Lampu dalam mode redup'
-                }
-            };
-            
-            const config = statusConfig[lightingStatus] || statusConfig[0];
-            
-            // Update tampilan
-            lampStatusIcon.className = `fas ${config.icon} stats-icon ${config.class}`;
-            lampStatusText.textContent = config.text;
-            lampStatusText.className = `stats-number ${config.class}`;
-            lampStatusDetail.innerHTML = config.detail;
-
-            // ✅ UPDATE LUX DENGAN VALIDASI LEBIH KETAT
-            const luxElement = document.getElementById('currentLux');
-            const ambientLight = latest.ambient_light_lux;
-            
-            if (ambientLight !== undefined && ambientLight !== null && !isNaN(parseFloat(ambientLight))) {
-                luxElement.textContent = parseFloat(ambientLight).toFixed(1);
-            } else {
-                luxElement.textContent = '0.0';
-                console.warn('Invalid ambient_light_lux value:', ambientLight);
-            }
-
-            // ✅ UPDATE MOTION DENGAN VALIDASI
-            const motionStatus = document.getElementById('motionStatus');
-            const motionDetail = document.getElementById('motionDetail');
-            
-            const motionDetected = latest.motion_detected ?? 0; // Default to 0 if undefined
-            if (motionDetected === 1) {
-                motionStatus.textContent = 'Ya';
-                motionStatus.className = 'stats-number status-on';
-                motionDetail.innerHTML = '<span class="motion-indicator motion-yes"></span><strong>Gerakan terdeteksi</strong>';
-            } else if (motionDetected === 0) {
-                motionStatus.textContent = 'Tidak';
-                motionStatus.className = 'stats-number status-off';
-                motionDetail.innerHTML = '<span class="motion-indicator motion-no"></span>Tidak ada gerakan';
-            } else {
-                motionStatus.textContent = '-';
-                motionStatus.className = 'stats-number status-unknown';
-                motionDetail.innerHTML = '<i class="fas fa-question-circle me-2 status-unknown"></i>Menunggu data...';
-            }
-
-            // Update indicator untuk data yang dinormalisasi
-            if (latest.is_normalized) {
-                document.getElementById('lampSource').innerHTML = '<i class="fas fa-brain me-1"></i>AI Estimation (Frontend)';
-            }
-
-            // Update waktu terakhir
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            
-            document.getElementById('lastUpdateTime').innerHTML = 
-                `<i class="far fa-clock me-1"></i>Update: <strong>${timeString}</strong>`;
-            document.getElementById('motionTime').innerHTML = 
-                `<i class="far fa-clock me-1"></i>Update: <strong>${timeString}</strong>`;
-        }
-
-        // ✅ FUNGSI FALLBACK
-        function setDefaultValues() {
-            document.getElementById('currentLux').textContent = '0.0';
-            document.getElementById('lampStatusText').textContent = 'N/A';
-            document.getElementById('motionStatus').textContent = '-';
-        }
-
-        // === UPDATE GRAFIK DENGAN DATA SINGLE ===
-        function updateChartSingle(data) {
-            if (!data || typeof data.ambient_light_lux === 'undefined') {
-                console.warn('Invalid data for chart:', data);
-                return;
-            }
-
-            const timestamp = new Date(data.timestamp || new Date()).toLocaleTimeString('id-ID');
-            const ambientLight = parseFloat(data.ambient_light_lux);
-            
-            if (isNaN(ambientLight)) {
-                console.warn('Invalid ambient_light_lux for chart:', data.ambient_light_lux);
-                return;
-            }
-            
-            // Tambah data baru
-            chart.data.labels.push(timestamp);
-            chart.data.datasets[0].data.push(ambientLight);
-            
-            // Batasi jumlah data point (20 data terakhir)
-            if (chart.data.labels.length > 20) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-            }
-            
-            chart.update('quiet');
-        }
-
-        // === UPDATE GRAFIK DENGAN DATA ARRAY (initial load) ===
-        function updateChart(data) {
-            // Filter data yang valid
-            const validData = data.filter(d => {
-                const isValid = d && typeof d.ambient_light_lux !== 'undefined' && 
-                               !isNaN(parseFloat(d.ambient_light_lux));
-                return isValid;
-            });
-            
-            if (validData.length === 0) {
-                console.warn('No valid data for chart');
-                return;
-            }
-            
-            chart.data.labels = validData.map(d => 
-                new Date(d.timestamp || new Date()).toLocaleTimeString('id-ID')
-            );
-            chart.data.datasets[0].data = validData.map(d => parseFloat(d.ambient_light_lux));
-            chart.update();
-        }
-
-        // === UPDATE LOG DENGAN DATA SINGLE ===
-        function updateLogSingle(data) {
-            const logContainer = document.getElementById('activityLog');
-            
-            // Hapus placeholder jika ada
-            if (logContainer.children.length === 1 && logContainer.children[0].classList.contains('text-center')) {
-                logContainer.innerHTML = '';
-            }
-
-            const logItem = createLogItem(data);
-            if (logItem) {
-                // Tambah di atas (data terbaru di atas) dengan highlight
-                logItem.classList.add('new-status');
-                logContainer.insertBefore(logItem, logContainer.firstChild);
-                
-                // Batasi jumlah log (15 log terbaru)
-                if (logContainer.children.length > 15) {
-                    logContainer.removeChild(logContainer.lastChild);
-                }
-                
-                // Hapus highlight setelah 3 detik
-                setTimeout(() => {
-                    logItem.classList.remove('new-status');
-                }, 3000);
-            }
-        }
-
-        // === UPDATE LOG DENGAN DATA ARRAY (initial load) ===
-        function updateLogs(data) {
-            const logContainer = document.getElementById('activityLog');
-            
-            // Hapus placeholder jika ada
-            if (logContainer.children.length === 1 && logContainer.children[0].classList.contains('text-center')) {
-                logContainer.innerHTML = '';
-            }
-
-            // Filter data yang valid
-            const validData = data.filter(d => 
-                d && typeof d.lighting_action_class !== 'undefined'
-            );
-            
-            if (validData.length === 0) {
-                console.warn('No valid data for logs');
-                return;
-            }
-            
-            // ✅ AMBIL HANYA PERUBAHAN STATUS (unik berdasarkan lighting_action_class)
-            const uniqueStatusData = [];
-            let lastStatus = null;
-            
-            validData.forEach(d => {
-                if (d.lighting_action_class !== lastStatus) {
-                    uniqueStatusData.push(d);
-                    lastStatus = d.lighting_action_class;
-                }
-            });
-            
-            // Ambil 10 data terbaru dan reverse untuk tampilkan terbaru di atas
-            const recentData = uniqueStatusData.slice(-10).reverse();
-            
-            recentData.forEach(d => {
-                const logItem = createLogItem(d);
-                if (logItem) {
-                    logContainer.appendChild(logItem);
-                }
-            });
-        }
-
-        // === BUAT ELEMEN LOG ITEM ===
-        function createLogItem(d) {
-            if (!d || typeof d !== 'object') {
-                console.error('Invalid log data:', d);
-                return null;
-            }
-
-            const logItem = document.createElement('div');
-            logItem.className = 'log-item';
-            
-            // ✅ HANDLE 3 STATES DI LOG
-            const statusMap = {
-                0: { text: 'MATI', class: 'status-off', icon: 'far fa-lightbulb' },
-                1: { text: 'HIDUP', class: 'status-on', icon: 'fas fa-lightbulb' },
-                2: { text: 'REDUP', class: 'status-warning', icon: 'fas fa-adjust' }
-            };
-            
-            const status = statusMap[d.lighting_action_class] || statusMap[0];
-            const motionStatus = (d.motion_detected === 1) ? 'Ya' : 'Tidak';
-            
-            // Validasi lux value
-            const ambientLight = (d.ambient_light_lux !== undefined && !isNaN(parseFloat(d.ambient_light_lux))) 
-                ? parseFloat(d.ambient_light_lux).toFixed(1) 
-                : '0.0';
-            
-            // Tampilkan source data
-            const dataSource = d.is_normalized ? ' (AI Est.)' : '';
-            
-            logItem.innerHTML = `
-                <div class="log-icon">
-                    <i class="${status.icon} ${status.class}"></i>
-                </div>
-                <div class="log-content">
-                    <strong class="${status.class}">
-                        LAMPU ${status.text}${dataSource}
-                    </strong>
-                    <br>
-                    <small class="text-muted">
-                        Lux: <strong>${ambientLight}</strong> | 
-                        Motion: ${motionStatus}
-                    </small>
-                </div>
-                <div class="log-time">
-                    ${new Date(d.timestamp || new Date()).toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}
-                </div>
-            `;
-
-            return logItem;
-        }
-
-        // === ANIMASI HIGHLIGHT UPDATE ===
-        function highlightUpdate() {
-            const cards = ['lampCard', 'luxCard', 'motionCard'];
-            cards.forEach(cardId => {
+            cardIds.forEach(cardId => {
                 const card = document.getElementById(cardId);
                 if (card) {
                     card.classList.add('highlight-update');
@@ -1342,16 +2027,15 @@
                 }
             });
         }
-
-        // === NOTIFICATION SYSTEM ===
+        
         function showNotification(message, type = 'info') {
             console.log(`📢 ${type.toUpperCase()}: ${message}`);
             
-            if (type === 'error' || type === 'success') {
+            if (type === 'error' || type === 'success' || type === 'info') {
                 const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show`;
+                alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'warning'} alert-dismissible fade show`;
                 alertDiv.innerHTML = `
-                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'check-circle'} me-2"></i>
+                    <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
                     ${message}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 `;
@@ -1368,21 +2052,67 @@
                 }
             }
         }
-
-        // === INISIALISASI SISTEM ===
+        
+        // ==================== INISIALISASI SISTEM ====================
+        
         function initializeSystem() {
             try {
-                console.log('🚀 Initializing GlowSense System...');
+                console.log('🚀 Initializing GlowSense Dashboard...');
                 
                 // Initialize components
                 updateTime();
                 initChart();
                 
-                // Setup event listener untuk tombol logout
-                const logoutBtn = document.getElementById('confirmLogout');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', logout);
-                }
+                // Setup event listeners
+                document.getElementById('confirmLogout').addEventListener('click', logout);
+                document.getElementById('btnTurnOn').addEventListener('click', () => sendManualCommand(1));
+                document.getElementById('btnTurnOff').addEventListener('click', () => sendManualCommand(0));
+                document.getElementById('btnTurnDim').addEventListener('click', () => sendManualCommand(2));
+                
+                // Refresh data button
+                document.getElementById('refreshDataBtn').addEventListener('click', function() {
+                    const btn = this;
+                    const originalText = btn.innerHTML;
+                    
+                    // Show loading
+                    btn.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i>Memuat...';
+                    btn.disabled = true;
+                    
+                    if (websocket && websocket.readyState === WebSocket.OPEN) {
+                        // Request fresh data
+                        websocket.send(JSON.stringify({
+                            type: 'get_state',
+                            timestamp: new Date().toISOString(),
+                            refresh: true
+                        }));
+                        
+                        showNotification('Memperbarui data dari server...', 'info');
+                        updateControlStatus('Memuat data...', 'loading');
+                        
+                        // Restore button after 2 seconds
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                            updateControlStatus('Data diperbarui', 'success');
+                        }, 2000);
+                        
+                    } else {
+                        showNotification('Tidak terhubung ke server. Menghubungkan ulang...', 'error');
+                        btn.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i>Menghubungkan...';
+                        updateControlStatus('Menghubungkan ulang...', 'loading');
+                        
+                        // Try to reconnect
+                        initWebSocket();
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }, 3000);
+                    }
+                });
+                
+                // Set initial control status
+                updateControlStatus('Menginisialisasi sistem...', 'loading');
                 
                 // Start WebSocket connection
                 setTimeout(() => {
@@ -1392,21 +2122,119 @@
                 // Start time updates
                 setInterval(updateTime, 1000);
                 
-                console.log('✅ Sistem GlowSense initialized successfully');
+                // Auto refresh state every 30 seconds
+                setInterval(() => {
+                    if (websocket && websocket.readyState === WebSocket.OPEN) {
+                        websocket.send(JSON.stringify({
+                            type: 'get_state',
+                            timestamp: new Date().toISOString(),
+                            auto_refresh: true
+                        }));
+                        console.log('🔄 Auto-refresh data');
+                    }
+                }, 30000);
+                
+                console.log('✅ Dashboard initialized successfully');
+                
             } catch (error) {
-                console.error('❌ Error initializing system:', error);
+                console.error('❌ Error initializing dashboard:', error);
+                showNotification(`Error: ${error.message}`, 'error');
+                updateControlStatus('Error inisialisasi', 'error');
             }
         }
-
-        // === CLEANUP PADA PAGE UNLOAD ===
+        
+        // ==================== EVENT LISTENERS ====================
+        
+        document.addEventListener('DOMContentLoaded', initializeSystem);
+        
         window.addEventListener('beforeunload', function() {
             if (websocket) {
                 websocket.close();
             }
         });
-
-        // === EVENT LISTENERS ===
-        document.addEventListener('DOMContentLoaded', initializeSystem);
+        
+        // ==================== TEST FUNCTIONS (for console) ====================
+        
+        // Fungsi untuk testing dari console browser
+        window.testControlMode = function(mode) {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                const testData = {
+                    type: 'set_mode',
+                    mode: mode.toUpperCase(),
+                    timestamp: new Date().toISOString()
+                };
+                websocket.send(JSON.stringify(testData));
+                console.log(`📤 Test: Set mode to ${mode}`);
+            } else {
+                console.error('WebSocket not connected');
+            }
+        };
+        
+        window.testManualCommand = function(command) {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                const testData = {
+                    type: 'manual_command',
+                    command: command,
+                    timestamp: new Date().toISOString(),
+                    source: 'console_test'
+                };
+                websocket.send(JSON.stringify(testData));
+                console.log(`📤 Test: Send command ${command}`);
+            } else {
+                console.error('WebSocket not connected');
+            }
+        };
+        
+        window.testSensorData = function(lux) {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                const testData = {
+                    ambient_light_lux: lux,
+                    timestamp: new Date().toISOString()
+                };
+                websocket.send(JSON.stringify(testData));
+                console.log(`📤 Test: Send sensor data lux=${lux}`);
+            } else {
+                console.error('WebSocket not connected');
+            }
+        };
+        
+        // Test fungsi untuk debugging
+        window.debugSensorData = function(luxValue = 4330.5) {
+            console.log('🔧 Simulating sensor data with lux:', luxValue);
+            
+            const testData = {
+                ambient_light_lux: luxValue,
+                motion_detected: 1,
+                lighting_action_class: 1,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('📤 Test data:', testData);
+            processSensorData(testData);
+            console.log('✅ Test complete. Check dashboard UI.');
+        };
+        
+        // New function to set lux value directly
+        window.setLuxValue = function(value) {
+            const luxValue = parseFloat(value);
+            if (!isNaN(luxValue)) {
+                document.getElementById('currentLux').textContent = luxValue.toFixed(1);
+                document.getElementById('liveIndicator').innerHTML = 
+                    '<span class="live-indicator"></span><strong class="status-on">LIVE</strong> - ' + 
+                    `<span class="text-success fw-bold">${luxValue.toFixed(1)} lux</span>`;
+                console.log(`✅ Lux manually set to: ${luxValue}`);
+            }
+        };
+        
+        console.log('🔧 Test functions available:');
+        console.log('  testControlMode("manual") - Change to manual mode');
+        console.log('  testControlMode("auto") - Change to auto mode');
+        console.log('  testManualCommand(1) - Turn lamp ON');
+        console.log('  testManualCommand(0) - Turn lamp OFF');
+        console.log('  testSensorData(4330.5) - Send test sensor data');
+        console.log('  debugSensorData(4330.5) - Simulate sensor data');
+        console.log('  setLuxValue(4330.5) - Set lux value directly');
+        
     </script>
 </body>
 </html>

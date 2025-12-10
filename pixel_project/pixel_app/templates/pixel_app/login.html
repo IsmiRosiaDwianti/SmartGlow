@@ -29,14 +29,14 @@
             display: flex;
             align-items: center;
             position: relative;
-            overflow: hidden;
+            /* HAPUS: overflow: hidden; */
             padding: 20px;
         }
 
-        /* Background Pattern */
+        /* Background Pattern - Ubah ke absolute */
         body::before {
             content: '';
-            position: fixed;
+            position: absolute; /* GANTI: fixed ke absolute */
             top: 0;
             left: 0;
             width: 100%;
@@ -48,15 +48,17 @@
             z-index: -1;
         }
 
-        /* Animated Background Elements */
+        /* Animated Background Elements - Ubah ke absolute */
         .floating-elements {
-            position: fixed;
+            position: absolute; /* GANTI: fixed ke absolute */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
             z-index: -1;
+            /* Tambahkan min-height untuk pastikan tinggi cukup */
+            min-height: 100vh;
         }
 
         .floating-element {
@@ -99,6 +101,9 @@
             width: 100%;
             max-width: 450px;
             margin: 0 auto;
+            /* Tambahkan margin vertikal untuk perangkat kecil */
+            margin-top: auto;
+            margin-bottom: auto;
         }
 
         .login-card {
@@ -111,8 +116,10 @@
             text-align: center;
             border: none;
             position: relative;
-            overflow: hidden;
+            /* HAPUS: overflow: hidden; */
             transition: all 0.3s ease;
+            /* Tambahkan margin untuk perangkat kecil */
+            margin: 20px 0;
         }
 
         .login-card:hover {
@@ -288,6 +295,40 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
+        }
+
+        /* MEDIA QUERY UNTUK RESPONSIVE DI PERANGKAT KECIL */
+        @media (max-height: 700px) {
+            body {
+                align-items: flex-start;
+                padding-top: 40px;
+                padding-bottom: 40px;
+            }
+            
+            .login-container {
+                margin-top: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+                margin: 10px;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
+            
+            .input-icon-container {
+                width: 50px;
+                height: 50px;
+                font-size: 1.1rem;
+            }
+            
+            .input-field {
+                padding: 12px 0;
+            }
         }
     </style>
 </head>
