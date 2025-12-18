@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/lampbg"
+    android:fillViewport="true"
+    android:fitsSystemWindows="true"
+    tools:context=".DashboardActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- JUDUL -->
+        <TextView
+            android:id="@+id/appTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:paddingTop="32dp"
+            android:text="Smart Lighting Dashboard"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <!-- TANGGAL -->
+        <TextView
+            android:id="@+id/textDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:textColor="#EAEAEA"
+            android:textSize="16sp"
+            tools:text="Kamis, 18 Des 2025 10:30" />
+
+        <!-- CARD STATUS LAMPU -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:text="Status Lampu"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2C3E50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textLampStatus"
+                android:text="OFF"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#E74C3C"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textLightIntensity"
+                android:text="Intensitas Cahaya: 0 lx"
+                android:textSize="14sp"
+                android:textColor="#34495E"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- MODE LAMPU -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:text="Mode Lampu"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2C3E50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textLampMode"
+                android:text="MANUAL - OFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#C0392B"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- TOMBOL MANUAL + AUTO -->
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+            tools:ignore="ExtraText">
+
+        <!-- MANUAL ON/OFF -->
+        <ImageButton
+            android:id="@+id/btnToggleLamp"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:background="@drawable/bg_lamp_off"
+            android:src="@drawable/ic_power"
+            android:scaleType="centerInside"
+            android:padding="28dp"
+            android:contentDescription="Toggle Lamp" />
+
+        <!-- JARAK -->
+        <View
+            android:layout_width="60dp"
+            android:layout_height="1dp" />
+
+        <!-- AUTO -->
+            <ImageButton
+                android:id="@+id/btnAutoMode"
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:background="@drawable/bg_auto_off"
+                android:src="@drawable/ic_auto"
+                android:scaleType="centerInside"/>
+            />
+        </LinearLayout>
+
+        <!-- DETEKSI GERAKAN -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:text="Deteksi Gerakan"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2C3E50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textMotionStatus"
+                android:text="Tidak Aktif"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#E67E22"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- GRAFIK -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:text="Grafik Intensitas Cahaya"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2C3E50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lightChart"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="12dp" />
+        </LinearLayout>
+
+        <!-- RIWAYAT -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:text="Riwayat Aktivitas"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2C3E50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerHistory"
+                android:layout_width="match_parent"
+                android:layout_height="250dp" />
+        </LinearLayout>
+
+        <!-- LOGOUT -->
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Logout"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#34495E"
+            android:layout_marginBottom="24dp" />
+
+    </LinearLayout>
+</ScrollView>

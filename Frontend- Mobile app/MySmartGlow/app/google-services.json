@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "980998892190",
+    "project_id": "mysmartglow-e0337",
+    "storage_bucket": "mysmartglow-e0337.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980998892190:android:8fdfb2766199dd35a9e98f",
+        "android_client_info": {
+          "package_name": "com.example.mysmartglow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCahSYgdlD1rp8ZhW3rvS5TD8cgAYUjOcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
